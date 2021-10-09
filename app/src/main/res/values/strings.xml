@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TOSERBA LIST</string>
+    <string name="tab_text_1">MAKANAN</string>
+    <string name="tab_text_2">MINUMAN</string>
+    <string name="tab_text_3">KOSMETIK</string>
+    <string name="tab_text_4">BAHAN DAPUR</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
