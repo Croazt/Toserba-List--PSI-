@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.psi.toserbalist.R
 import com.psi.toserbalist.adapter.BarangAdapter
 import com.psi.toserbalist.models.ApiService
@@ -34,6 +35,7 @@ class Minuman : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,36 +84,40 @@ class Minuman : Fragment() {
             }
 
             override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
-//                prepareItems()
             }
 
         })
 
+        swipeRefreshLayout = view.findViewById(R.id.swipeContainer)
+        swipeRefreshLayout.setOnRefreshListener {
+            api.fetchMakanan("*", "eq.Minuman").enqueue(object : Callback<List<BarangLists>> {
+                override fun onResponse(
+                    call: Call<List<BarangLists>>,
+                    response: Response<List<BarangLists>>
 
+                ) {
 
-        // menggunakan viewgroup linearlayout untuk menampulkan data
-        // secara vertical
+                    val recyclerView: RecyclerView = view.findViewById(R.id.recyvlerView)
+                    val barangsAdapter = BarangAdapter(response.body()!!)
+                    val layoutManager = LinearLayoutManager(context)
+                    recyclerView.layoutManager = layoutManager
+                    recyclerView.adapter = barangsAdapter
+
+                    Log.d("fachry", "onResponse: ${response.body()!![0]}")
+
+                    barangsAdapter.notifyDataSetChanged()
+                }
+
+                override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
+                }
+
+            })
+
+            swipeRefreshLayout.isRefreshing = false
+        }
+
 
         return view
     }
 
-//    companion object {
-//        /**
-//         * Use this factory method to create a new instance of
-//         * this fragment using the provided parameters.
-//         *
-//         * @param param1 Parameter 1.
-//         * @param param2 Parameter 2.
-//         * @return A new instance of fragment Makanan.
-//         */
-//        // TODO: Rename and change types and number of parameters
-//        @JvmStatic
-//        fun newInstance(param1: String, param2: String) =
-//            Makanan().apply {
-//                arguments = Bundle().apply {
-//                    putString(ARG_PARAM1, param1)
-//                    putString(ARG_PARAM2, param2)
-//                }
-//            }
-//    }
 }

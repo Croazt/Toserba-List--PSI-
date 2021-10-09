@@ -18,6 +18,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="FontMont" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+    </style>
 
     <style name="Theme.ToserbaList.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

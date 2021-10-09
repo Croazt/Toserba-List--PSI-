@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.psi.toserbalist.R
 import com.psi.toserbalist.adapter.BarangAdapter
 import com.psi.toserbalist.models.ApiService
@@ -34,6 +35,7 @@ class BahanDapur : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,15 +85,39 @@ class BahanDapur : Fragment() {
             }
 
             override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
-//                prepareItems()
             }
 
         })
 
 
+        swipeRefreshLayout = view.findViewById(R.id.swipeContainer)
+        swipeRefreshLayout.setOnRefreshListener {
+            api.fetchMakanan("*", "eq.Bahan Dapur").enqueue(object : Callback<List<BarangLists>> {
+                override fun onResponse(
+                    call: Call<List<BarangLists>>,
+                    response: Response<List<BarangLists>>
 
-        // menggunakan viewgroup linearlayout untuk menampulkan data
-        // secara vertical
+                ) {
+
+                    val recyclerView: RecyclerView = view.findViewById(R.id.recyvlerView)
+                    val barangsAdapter = BarangAdapter(response.body()!!)
+                    val layoutManager = LinearLayoutManager(context)
+                    recyclerView.layoutManager = layoutManager
+                    recyclerView.adapter = barangsAdapter
+
+                    Log.d("fachry", "onResponse: ${response.body()!![0]}")
+                    barangsAdapter.notifyDataSetChanged()
+                }
+
+                override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
+//                prepareItems()
+                }
+
+            })
+
+            swipeRefreshLayout.isRefreshing = false
+        }
+
 
         return view
     }

@@ -22,7 +22,6 @@ class BarangAdapter(private var barang: List<BarangLists>) :
         var Image : ImageView = view.findViewById(R.id.Image)
         var Judul: TextView = view.findViewById(R.id.Judul)
         var Desc: TextView = view.findViewById(R.id.Desc)
-        var Kategori: TextView = view.findViewById(R.id.Kategori)
     }
 
     // fungsi inisialisasi awal untuk menyiapkan layout yang akan digunakan
@@ -33,16 +32,13 @@ class BarangAdapter(private var barang: List<BarangLists>) :
         return Holder(itemView)
     }
 
-    // Mengaitkan data sesuai dengan indeksnya
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = barang[position]
         holder.Judul.text = item.Title
-        holder.Kategori.text = item.Category
         holder.Desc.text = item.Deskripsi
         Glide.with(holder.Image).load(item.Gambar).fitCenter().into(holder.Image)
     }
 
-    // mengembalikan jumlah data dari dataset
     override fun getItemCount(): Int {
         return barang.size
     }

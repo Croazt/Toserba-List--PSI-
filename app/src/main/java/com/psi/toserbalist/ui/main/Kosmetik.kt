@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.psi.toserbalist.R
 import com.psi.toserbalist.adapter.BarangAdapter
 import com.psi.toserbalist.models.ApiService
@@ -34,7 +35,7 @@ class Kosmetik : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -47,25 +48,30 @@ class Kosmetik : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         // Inflate the layout for this fragment
-        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjMzNzAxNTI3LCJleHAiOjE5NDkyNzc1Mjd9.UWEACFqD20y4BX-vdAKYpAs5uwKRAuWK9jdQg9ktHBs"
-        val apikey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjMzNzAxNTI3LCJleHAiOjE5NDkyNzc1Mjd9.UWEACFqD20y4BX-vdAKYpAs5uwKRAuWK9jdQg9ktHBs"
+        val token =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjMzNzAxNTI3LCJleHAiOjE5NDkyNzc1Mjd9.UWEACFqD20y4BX-vdAKYpAs5uwKRAuWK9jdQg9ktHBs"
+        val apikey =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjMzNzAxNTI3LCJleHAiOjE5NDkyNzc1Mjd9.UWEACFqD20y4BX-vdAKYpAs5uwKRAuWK9jdQg9ktHBs"
 
         var client: OkHttpClient = OkHttpClient.Builder().addInterceptor(Interceptor { chain ->
             val newRequest = chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer " + token)
-                .addHeader("apikey" , apikey)
+                .addHeader("apikey", apikey)
                 .build()
             chain.proceed(newRequest)
         }).build()
 
-        val retrofit = Retrofit.Builder().client(client).baseUrl("https://wivzmfenumiglquwejaq.supabase.co/rest/v1/").addConverterFactory(
-            GsonConverterFactory.create()).build()
+        val retrofit = Retrofit.Builder().client(client)
+            .baseUrl("https://wivzmfenumiglquwejaq.supabase.co/rest/v1/").addConverterFactory(
+            GsonConverterFactory.create()
+        ).build()
 
         val api = retrofit.create(ApiService::class.java)
 
-        var view =  inflater.inflate(R.layout.fragment_makanan, container, false)
-        api.fetchMakanan("*","eq.Kosmetik").enqueue(object : Callback<List<BarangLists>> {
+        var view = inflater.inflate(R.layout.fragment_makanan, container, false)
+        api.fetchMakanan("*", "eq.Kosmetik").enqueue(object : Callback<List<BarangLists>> {
             override fun onResponse(
                 call: Call<List<BarangLists>>,
                 response: Response<List<BarangLists>>
@@ -83,36 +89,38 @@ class Kosmetik : Fragment() {
             }
 
             override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
-//                prepareItems()
             }
 
         })
+        swipeRefreshLayout = view.findViewById(R.id.swipeContainer)
+        swipeRefreshLayout.setOnRefreshListener {
+            api.fetchMakanan("*", "eq.Kosmetik").enqueue(object : Callback<List<BarangLists>> {
+                override fun onResponse(
+                    call: Call<List<BarangLists>>,
+                    response: Response<List<BarangLists>>
 
+                ) {
 
+                    val recyclerView: RecyclerView = view.findViewById(R.id.recyvlerView)
+                    val barangsAdapter = BarangAdapter(response.body()!!)
+                    val layoutManager = LinearLayoutManager(context)
+                    recyclerView.layoutManager = layoutManager
+                    recyclerView.adapter = barangsAdapter
 
-        // menggunakan viewgroup linearlayout untuk menampulkan data
-        // secara vertical
+                    Log.d("fachry", "onResponse: ${response.body()!![0]}")
+                    barangsAdapter.notifyDataSetChanged()
+                }
 
+                override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
+//                prepareItems()
+                }
+
+            })
+
+            swipeRefreshLayout.isRefreshing = false
+        }
+//
         return view
     }
 
-//    companion object {
-//        /**
-//         * Use this factory method to create a new instance of
-//         * this fragment using the provided parameters.
-//         *
-//         * @param param1 Parameter 1.
-//         * @param param2 Parameter 2.
-//         * @return A new instance of fragment Makanan.
-//         */
-//        // TODO: Rename and change types and number of parameters
-//        @JvmStatic
-//        fun newInstance(param1: String, param2: String) =
-//            Makanan().apply {
-//                arguments = Bundle().apply {
-//                    putString(ARG_PARAM1, param1)
-//                    putString(ARG_PARAM2, param2)
-//                }
-//            }
-//    }
 }

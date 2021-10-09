@@ -1,6 +1,7 @@
 package com.psi.toserbalist.ui.main
 
 import android.os.Bundle
+import android.util.Log
 import android.util.Log.d
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.psi.toserbalist.R
 import com.psi.toserbalist.adapter.BarangAdapter
 import com.psi.toserbalist.models.ApiService
@@ -36,6 +38,7 @@ class Makanan : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val itemsList = ArrayList<String>()
     private lateinit var barangAdapter: BarangAdapter
 
@@ -86,15 +89,38 @@ class Makanan : Fragment() {
             }
 
             override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
-//                prepareItems()
             }
 
         })
 
 
+        swipeRefreshLayout = view.findViewById(R.id.swipeContainer)
+        swipeRefreshLayout.setOnRefreshListener {
+            api.fetchMakanan("*", "eq.Makanan").enqueue(object : Callback<List<BarangLists>> {
+                override fun onResponse(
+                    call: Call<List<BarangLists>>,
+                    response: Response<List<BarangLists>>
 
-        // menggunakan viewgroup linearlayout untuk menampulkan data
-        // secara vertical
+                ) {
+
+                    val recyclerView: RecyclerView = view.findViewById(R.id.recyvlerView)
+                    val barangsAdapter = BarangAdapter(response.body()!!)
+                    val layoutManager = LinearLayoutManager(context)
+                    recyclerView.layoutManager = layoutManager
+                    recyclerView.adapter = barangsAdapter
+
+                    Log.d("fachry", "onResponse: ${response.body()!![0]}")
+                    barangsAdapter.notifyDataSetChanged()
+                }
+
+                override fun onFailure(call: Call<List<BarangLists>>, t: Throwable) {
+//                prepareItems()
+                }
+
+            })
+
+            swipeRefreshLayout.isRefreshing = false
+        }
 
         return view
     }
